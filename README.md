@@ -6,7 +6,9 @@
 
 ![](imgs/main.png)
 
-[Live Demo Link](https://github.com/byumjin)
+# Live Demo
+
+[Live Demo Link](https://byumjin.github.io/homework-1-noisy-planets-byumjin/)
 
 # Overview
 
