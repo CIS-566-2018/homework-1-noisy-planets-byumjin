@@ -42,7 +42,7 @@
 
 | 0.8 | 0.9 | 1.0 | 1.1 |
 | --- | --- | --- | --- |
-| ![](imgs/ocean_00.png) | ![](imgs/ocean_01.png) | ![](imgs/default.png) | ![](imgs/ocean_01.png) |
+| ![](imgs/ocean_00.png) | ![](imgs/ocean_01.png) | ![](imgs/default.png) | ![](imgs/ocean_02.png) |
 
 - ShoreHieght(relative value) decides the height of shore area from the Ocean's Height.
 
