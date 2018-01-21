@@ -1,78 +1,112 @@
 # CIS 566 Project 1: Noisy Planets
 
-## Objective
-- Continue practicing WebGL and Typescript
-- Experiment with noise functions to procedurally generate the surface of a planet
-- Review surface reflection models
+* Univer sity of Pennsylvania - CIS 566 Project 1: Noisy Planets
+* pennkey : byumjin
+* name : [Byumjin Kim](https://github.com/byumjin)
 
-## Base Code
-You'll be using the same base code as in homework 0.
+![](imgs/main.png)
 
-## Assignment Details
-- Update the basic scene from your homework 0 implementation so that it renders
-an icosphere once again. We recommend increasing the icosphere's subdivision
-level to 6 so you have more vertices with which to work.
-- Write a new GLSL shader program that incorporates various noise functions and
-noise function permutations to offset the surface of the icosphere and modify
-the color of the icosphere so that it looks like a planet with geographic
-features. Try making formations like mountain ranges, oceans, rivers, lakes,
-canyons, volcanoes, ice caps, glaciers, or even forests. We recommend using
-3D noise functions whenever possible so that you don't have UV distortion,
-though that effect may be desirable if you're trying to make the poles of your
-planet stand out more.
-- Implement various surface reflection models (e.g. Lambertian, Blinn-Phong,
-Matcap/Lit Sphere, Raytraced Specular Reflection) on the planet's surface to
-better distinguish the different formations (and perhaps even biomes) on the
-surface of your planet. Make sure your planet has a "day" side and a "night"
-side; you could even place small illuminated areas on the night side to
-represent cities lit up at night.
-- Add GUI elements via dat.GUI that allow the user to modify different
-attributes of your planet. This can be as simple as changing the relative
-location of the sun to as complex as redistributing biomes based on overall
-planet temperature. You should have at least three modifiable attributes.
-- Have fun experimenting with different features on your planet. If you want,
-you can even try making multiple planets! Your score on this assignment is in
-part dependent on how interesting you make your planet, so try to
-experiment with as much as you can!
+# Overview
 
-For reference, here is a planet made by your TA Dan last year for this
-assignment:
+- I have created a procedural planet, which is refered to [Implicit Procedural Planet Generation](https://static1.squarespace.com/static/58a1bc3c3e00be6bfe6c228c/t/58a4d25146c3c4233fb15cc2/1487196929690/ImplicitProceduralPlanetGeneration-Report.pdf) mostly, on my shader.
 
-![](danPlanet.png)
 
-Notice how the water has a specular highlight, and how there's a bit of
-atmospheric fog near the horizon of the planet. This planet used only simple
-Fractal Brownian Motion to create its mountainous shapes, but we expect you all
-can do something much more exciting! If we were to grade this planet by the
-standards for this year's version of the assignment, it would be a B or B+.
+## GUI
 
-## Useful Links
+![](imgs/GUI.png)
+
+- This project has many options which can control various values to change the planet.
+- Tesselations : it decides how much the planet should be divided.
+- SunDirection : it shows the sun's direction which indicates the direction of its directional light.
+- Colors : The user can pick each terrain layer's color
+- Terrain : It has values wihch can change a certain terrain's slope, shape, height and etc.
+- Time : The user can switch it off or on.
+- EnviromentMap : The user can switch it off or on.
+- Noise4D : The user can switch it off or on.
+- Shader :  The user can select several surface reflection models.
+
+
+## Terrain
+
+- Terrains are consists of 5 layers (shoreline, foliage, steep, snow, ice)
+
+### LandScape
+
+- I have used Fractal Brownian Motion to make procedural landscape.
+
+- OceanHeight(absolute value) decides the height of water from the center of planet.
+
+| Ocean Height | 0.8 | 0.9 | 1.0 | 1.1 |
+| --- | --- | --- | --- | --- |
+| --- | ![](imgs/ocean_00.png) | ![](imgs/ocean_01.png) | ![](imgs/default.png) | ![](imgs/ocean_01.png) |
+
+- ShoreHieght(relative value) decides the height of shore area from the Ocean's Height.
+
+- SnowHieght(absolute value) decides the height of snowy area.
+
+| Shore Height | 0.9 | 1.0 | 1.1 |
+| --- | --- | --- | --- |
+| --- | ![](imgs/default.png) | ![](imgs/snow_01.png) | ![](imgs/snow_02.png) |
+
+- PolarCapsAttitude(absolute Y value) decides the attitude of the starting height of icy land.
+
+| Polar Cap Attitude Height | 1.1 | 0.0 |
+| --- | --- | --- |
+| --- | ![](imgs/polarCap_01.png) | ![](imgs/polarCap_02.png) |
+
+- Using with Terrain Exponential, The user can make default terrain to make it steeper, more dramatic or more homogenous in height.
+  Steeper area shows steeps color more, and more homogenous are shows foliage color more. 
+
+| Exponential | 0.15 | 0.35 | 0.5 | 1.0 |
+| --- | --- | --- | --- | --- |
+| --- | ![](imgs/exp_00.png) | ![](imgs/default.png) | ![](imgs/exp_01.png) | ![](imgs/exp_02.png) |
+
+### Ocean
+- Depending on the water depth from its terrain, deeper ocean has darker color and more wavy surface.
+- I also have used Fractal Brownian Motion with higher frequency to make wave.
+
+### Normal
+- I think surface normal is the most important feature to make our planet fancy.
+- [The paper](https://static1.squarespace.com/static/58a1bc3c3e00be6bfe6c228c/t/58a4d25146c3c4233fb15cc2/1487196929690/ImplicitProceduralPlanetGeneration-Report.pdf) recommands to use Gradient Approximation to get surface normal. But, it is too expensive because it needs use the FBM function 6 times. Instead of using that, I used the result of our FBM with dFdx and dFdy functions on fragment shader. If our drawned number of fragment is less that the number of vertex of our planet, it is much efficient because it just use the FBM fuction 2 times. But, if the area ofour planet on fragment shader is not enough, it will make ugly noise. To handle this, FBM function has LOD parameter. If the distance between the planet and camera is getting further, the number of loop of the FBM decrease. In other word, it shows less detail of the terrain.
+
+| LOD | 0 | 1 | 2 | 3 | 4 |
+| --- | --- | --- | --- | --- | --- |
+| --- | ![](imgs/LOD_01.png) | ![](imgs/LOD_02.png) | ![](imgs/LOD_03.png) | ![](imgs/LOD_04.png) | ![](imgs/LOD_05.png) |
+
+
+## Reflection Model
+
+- Each terrain layer has its roughness, respectively.
+- Depending on its roughness, it reflects different amount of light energy along its surface normal. 
+
+| Reflection Model | Lambert | Blinn-Phong | Phsically-based |
+| --- | --- | --- | --- |
+| --- | ![](imgs/lambert.png) | ![](imgs/blinn.png) | ![](imgs/pbs.png) |
+
+### Environment Map
+
+- Enviroment map is one of the efficient way to make fancy reflection effect with cheap performance.
+
+| Environment Map | Off | On |
+| --- | --- | --- |
+| --- | ![](imgs/no_env.png) | ![](imgs/default.png) |
+
+
+## Background
+
+### Halo
+
+- Instead of using ray-tracing to find the edge of the planet, I traced screen space position of the planet to make gradation effect.
+
+| Color | Blue | Pink |
+| --- | --- | --- |
+| --- | ![](imgs/default.png) | ![](imgs/halo_01.png) |
+
+### Star-field
+
+- I also have used FBM to make twinkling stars.
+- Depending on its screen space position, its twinkling period is decided.
+
+
+## Reference
 - [Implicit Procedural Planet Generation](https://static1.squarespace.com/static/58a1bc3c3e00be6bfe6c228c/t/58a4d25146c3c4233fb15cc2/1487196929690/ImplicitProceduralPlanetGeneration-Report.pdf)
-- [Curl Noise](https://petewerner.blogspot.com/2015/02/intro-to-curl-noise.html)
-- [GPU Gems Chapter on Perlin Noise](http://developer.download.nvidia.com/books/HTML/gpugems/gpugems_ch05.html)
-- [Worley Noise Implementations](https://thebookofshaders.com/12/)
-
-
-## Submission
-Commit and push to Github, then submit a link to your commit on Canvas.
-
-For this assignment, and for all future assignments, modify this README file
-so that it contains the following information:
-- Your name and PennKey
-- Citation of any external resources you found helpful when implementing this
-assignment.
-- A link to your live github.io demo (we'll talk about how to get this set up
-in class some time before the assignment is due)
-- At least one screenshot of your planet
-- An explanation of the techniques you used to generate your planet features.
-Please be as detailed as you can; not only will this help you explain your work
-to recruiters, but it helps us understand your project when we grade it!
-
-## Extra Credit
-- Use a 4D noise function to modify the terrain over time, where time is the
-fourth dimension that is updated each frame. A 3D function will work, too, but
-the change in noise will look more "directional" than if you use 4D.
-- Use music to animate aspects of your planet's terrain (e.g. mountain height,
-  brightness of emissive areas, water levels, etc.)
-- Create a background for your planet using a raytraced sky box that includes
-things like the sun, stars, or even nebulae.

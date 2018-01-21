@@ -30,7 +30,7 @@ const controls = {
   PolarCaps: [155, 214, 236, 1.0],
   PolarCapsAttitude: 1.1,
   Atmosphere: [64, 88, 172, 1.0],
-  shader: 2,
+  Shader: 2,
   Noise4D: 0, 
   TerrainExp: 0.35,
   TerrainSeed: 0.0,
@@ -116,7 +116,7 @@ function main() {
 
   gui.add(controls, 'Noise4D', { Off: 0, On: 1 });
 
-  gui.add(controls, 'shader', { Lambertian: 0, Blinn_phong: 1, Physically_based: 2 });
+  gui.add(controls, 'Shader', { Lambertian: 0, Blinn_phong: 1, Physically_based: 2 });
   
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -156,12 +156,14 @@ function main() {
     currentTime = Date.now();
 
     if(controls.Time > 0.0)
-      time += 1.0;// (currentTime - oldTime) / 1000.0;//   Stats.deltaTime;// 1.0 * 0.5;
+    {
+      time += (currentTime - oldTime) * 0.06;
+    }
 
     oldTime = currentTime;
     camera.update();
     
-    rotatePlanet(noisyPlanet, 0.0001);
+    rotatePlanet(noisyPlanet, 0.0005);
 
     stats.begin();
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
@@ -178,7 +180,7 @@ function main() {
     renderer.render(camera, planetShader,
         [noisyPlanet,],
 
-        vec4.fromValues(controls.x, controls.y, controls.z, controls.shader),
+        vec4.fromValues(controls.x, controls.y, controls.z, controls.Shader),
         vec4.fromValues(controls.Oceans[0], controls.Oceans[1], controls.Oceans[2], controls.Oceans[3]),
         vec4.fromValues(controls.Shoreline[0], controls.Shoreline[1], controls.Shoreline[2], controls.Shoreline[3]),
         vec4.fromValues(controls.Foliage[0], controls.Foliage[1], controls.Foliage[2], controls.Foliage[3]),
@@ -188,19 +190,10 @@ function main() {
         vec4.fromValues(controls.Atmosphere[0], controls.Atmosphere[1], controls.Atmosphere[2], controls.Atmosphere[3]),            
         vec4.fromValues(controls.OceanHeight, controls.ShoreHeight, controls.SnowHeight, controls.PolarCapsAttitude),
         vec4.fromValues(time, controls.Noise4D, controls.TerrainExp, controls.TerrainSeed * 39.0),
-        vec4.fromValues(camera.position[0], camera.position[1], camera.position[2], controls.EnvironmentMap),  
-        
+        vec4.fromValues(camera.position[0], camera.position[1], camera.position[2], controls.EnvironmentMap),          
     );
 
-
-
-
-    
-
     stats.end();
-
-    
-
     // Tell the browser to call `tick` again whenever it renders a new frame
     requestAnimationFrame(tick);
   }

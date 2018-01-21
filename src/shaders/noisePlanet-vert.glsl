@@ -137,7 +137,8 @@ void main()
     mat3 invTranspose = mat3(u_ModelInvTr);
 
     float gap = clamp((1.0 - (oceneHeight - height)), 0.0, 1.0);
-    vec4 ocenColor = u_OceanColor  * pow(gap, 3.0);
+    gap = pow(gap, 3.0);
+    vec4 ocenColor = u_OceanColor  * gap;
 
     float oceneRougness = 0.15;
     float iceRougness = 0.15;
@@ -148,7 +149,8 @@ void main()
     //ocean
     if(height < oceneHeight)
     {
-        float wave = OceanNoise(vertexPos.xyz, oceneHeight, noiseResult);        
+        float wave = OceanNoise(vertexPos.xyz, oceneHeight, noiseResult);    
+        wave *= max(1.0 - gap, 0.0);  
         vertexPos.xyz = (oceneHeight + wave) * localNormal;
 
         fs_Pos = vertexPos;
