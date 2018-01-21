@@ -100,9 +100,9 @@
 
 - Instead of using ray-tracing to find the edge of the planet, I traced screen space position of the planet to make gradation effect.
 
-| Color | Blue | Pink |
-| --- | --- | --- |
-| --- | ![](imgs/default.png) | ![](imgs/halo_01.png) |
+| Blue | Pink |
+| --- | --- |
+| ![](imgs/default.png) | ![](imgs/halo_01.png) |
 
 ### Star-field
 
